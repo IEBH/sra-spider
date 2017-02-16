@@ -1,0 +1,39 @@
+{
+  "name": "sra-spider",
+  "version": "0.0.0",
+  "description": "CREBP-SRA tool to spider references from a given reference library",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CREBP/sra-spider.git"
+  },
+  "keywords": [
+    "crebp",
+    "sra",
+    "search",
+    "library",
+    "citation",
+    "spider",
+    "spidering",
+    "medical",
+    "research"
+  ],
+  "author": "Matt Carter <m@ttcarter.com> (https://github.com/hash-bang)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/CREBP/sra-spider/issues"
+  },
+  "homepage": "https://github.com/CREBP/sra-spider#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  },
+  "dependencies": {
+  },
+  "engines": {
+    "node": "4.0.0"
+  }
+}
