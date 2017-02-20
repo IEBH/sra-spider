@@ -1,7 +1,7 @@
 {
   "name": "sra-spider",
   "version": "0.0.0",
-  "description": "CREBP-SRA tool to spider references from a given reference library",
+  "description": "CREBP-SRA tool to spider academic citations",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
