@@ -29,31 +29,15 @@ describe('Stage breakdown', function() {
 		});
 	});
 
-	it('should fetch all forward DOIs (this paper cites)', function(done) {
+	it('should fetch all spidered DOIs', function(done) {
 		this.timeout(60 * 1000);
 		spider
 			.on('pmid-invalid', id => mlog.log('Invalid PMID: ' + id))
-			.fetchForward(doc, function(err, dois) {
-				console.log('GOT', err, dois);
+			.exec('10.1037/0003-066X.59.1.29', function(err, dois) {
 				expect(err).to.be.not.ok;
 				expect(dois).to.be.an.array;
 				done();
 			});
-	});
-
-	it.skip('should fetch all backward DOIs (this paper cited by)', function(done) {
-		spider.fetchBackward(doc, function(err, dois) {
-			expect(err).to.be.not.ok;
-			expect(dois).to.be.an.array;
-			done();
-		});
-	});
-
-	it.skip('should perform the whole operation in one call', function(done) {
-		spider.spider('10.1037/0003-066X.59.1.29', function(err, results) {
-			expect(err).to.be.not.ok;
-			done()
-		});
 	});
 
 });
