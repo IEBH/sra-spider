@@ -2,13 +2,11 @@ var expect = require('chai').expect;
 var mlog = require('mocha-logger');
 var spider = require('..');
 
-describe('Stage breakdown', function() {
+describe('getDOI()', function() {
 
-	var doc;
 	it('should fetch a DOI', function(done) {
-		spider.getDOI('10.1037/0003-066X.59.1.29', function(err, res) {
+		spider.getDOI('10.1037/0003-066X.59.1.29', function(err, doc) {
 			expect(err).to.be.not.ok;
-			doc = res;
 			expect(doc).to.be.an.object;
 			expect(doc).to.have.property('title');
 			expect(doc.title).to.deep.equal(['How the Mind Hurts and Heals the Body.']);
@@ -27,17 +25,6 @@ describe('Stage breakdown', function() {
 
 			done();
 		});
-	});
-
-	it('should fetch all spidered DOIs', function(done) {
-		this.timeout(60 * 1000);
-		spider
-			.on('pmid-invalid', id => mlog.log('Invalid PMID: ' + id))
-			.exec('10.1037/0003-066X.59.1.29', function(err, dois) {
-				expect(err).to.be.not.ok;
-				expect(dois).to.be.an.array;
-				done();
-			});
 	});
 
 });
