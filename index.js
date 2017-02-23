@@ -99,36 +99,27 @@ function Spider() {
 
 	/**
 	* Execute all spidering stages using either provided or default options
-	* @param {string|array|Object} doi Either the DOI of a paper (in which case getDOI is called beforehand) or the document returned from getDOI previously or an array of either
+	* @param {string|array} doi Either the DOI of a paper or an array of DOIs
 	* @param {Object} [options] Options to use which override the defaults
 	* @param {boolean} [options.exec.skipPopulate=false] Whether to skip the populate stage - do this only if you are sure all input elements are already populated
-	* @param {function} cb The callback to call on completion
+	* @param {function} cb The callback to call on completion as (err, cites Set)
 	* @return {Spider} This chainable object
-	* @emits citesFound Emitted when citations are found for a given doi record. Called as (driverId, doiDocument, citesArray)
+	* @emits citesFound Emitted when citations are found for a given doi record. Called as (driverId, doi, doiCites Set)
 	*/
-	spider.exec = argy('string|array|object [object] function', function(doi, options, cb) {
+	spider.exec = argy('string|array [object] function', function(doi, options, cb) {
 		var settings = _.assign({}, spider.defaults, options);
-		var foundCites = {}; // Object lookup of cites we found, the key in each case is the DOI, the value being the DOI document
+		var foundCites = new Set(); // Object lookup of cites we found, the key in each case is the DOI, the value being the DOI document
 
 		async()
-			// Ensure that all DOIs are valid records and not just an array of strings {{{
-			.then('dois', function(next) {
-				if (_.get(settings, 'exec.skipPopulate')) return next();
-				spider.populate(doi, settings, next);
-			})
-			// }}}
-			// For each (now populated DOI), ask each driver for the citations {{{
-			.forEach('dois', function(next, doc) {
+			// For each DOI, ask each driver for the citations {{{
+			.forEach(_.castArray(doi), function(next, doi) {
 				async()
 					.forEach(spider.drivers, function(nextDriver, driver) {
-						driver.fetchCites(doc, settings, function(err, cites) {
+						driver.fetchCites(doi, settings, function(err, doiCites) {
 							if (err) return nextDriver(err);
-							if (!_.isArray(cites) || !cites.length) return nextDriver();
-							spider.emit('citesFound', driver.id, doc, cites);
-							_.forEach(cites, function(cite) {
-								// Not seen this cite before?
-								if (!foundCites[cite.doi]) foundCites[cite.doi] = cite
-							});
+							if (!doiCites || !doiCites.size) return nextDriver();
+							spider.emit('citesFound', driver.id, doi, doiCites);
+							doiCites.forEach(doiCite => foundCites.add(doiCite));
 							nextDriver();
 						});
 					})

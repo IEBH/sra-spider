@@ -30,6 +30,12 @@ module.exports = function(spider) {
 			});
 	};
 
+
+	/**
+	* Utility function to get the DOI from a Europe PMC ID
+	* @param {string} epmcid The Europe PMC ID to translate
+	* @param {function} cb The callback to call on completion
+	*/
 	driver.getDOIfromEPMCID = function(epmcid, cb) {
 		superagent.get('https://www.ncbi.nlm.nih.gov/pmc/utils/idconv/v1.0/')
 			.query({
@@ -53,16 +59,17 @@ module.exports = function(spider) {
 
 	/**
 	* Find all citations for a given DOI document
-	* @param {Object} doiDoc The DOI document to find citations for
+	* @param {string} doi The DOI to find citations for
 	* @param {Object} options Options to use when scanning
-	* @param {function} cb The callback to call on completion, this will be given an error return and an array of (populated) doi citations
+	* @param {function} cb The callback to call on completion, this will be given an error return and a Set of dois
+	* @emits pmidInvalid Emitted if the EPMCID cannot be translated back into a DOI. Called with (epmcid, fullCitation)
 	*/
-	driver.fetchCites = function(doiDoc, options, cb) {
+	driver.fetchCites = function(doi, options, cb) {
 		async()
 			.set('doc', this.doc)
 			// Look up the epmcID from the DOI {{{
 			.then('epmcId', function(next) {
-				driver.getEPMCIDfromDOI(doiDoc.doi, next);
+				driver.getEPMCIDfromDOI(doi, next);
 			})
 			// }}}
 			// Fetch the citations {{{
@@ -79,31 +86,18 @@ module.exports = function(spider) {
 					});
 			})
 			// }}}
-			// Translate europePMC results back into DOIDoc results {{{
-			.set('output', [])
+			// Translate europePMC ID results back into DOIs {{{
+			.set('output', new Set())
 			.forEach('cites', function(next, cite) {
-				async()
-					.set('output', this.output)
-					// Translate EPMCID -> DOI {{{
-					.then('doi', function(next) {
-						driver.getDOIfromEPMCID(cite.id, next);
-					})
-					// }}}
-					// Fetch DOI record {{{
-					.then('doiDoc', function(next) {
-						spider.getDOI(this.doi, next);
-					})
-					// }}}
-					// End {{{
-					.end(function(err) {
-						if (err) {
-							spider.emit('pmid-invalid', cite.id);
-						} else {
-							this.output.push(this.doiDoc);
-						}
-						next();
-					})
-					// }}}
+				var output = this.output;
+				driver.getDOIfromEPMCID(cite.id, function(err, doi) {
+					if (err) {
+						spider.emit('pmidInvalid', cite.id, cite);
+					} else {
+						output.add(doi);
+					}
+					next();
+				});
 			})
 			// }}}
 			// End {{{
