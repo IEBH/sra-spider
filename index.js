@@ -3,7 +3,6 @@ var async = require('async-chainable');
 var argy = require('argy');
 var crossref = require('crossref');
 var events = require('events');
-var superagent = require('superagent');
 var util = require('util');
 
 function Spider() {
@@ -23,6 +22,15 @@ function Spider() {
 		},
 	};
 
+	/**
+	* Set various settings
+	* @return {Object} This chainable object
+	*/
+	spider.set = function(options) {
+		_.merge(spider.defaults, options);
+		return spider;
+	};
+
 
 	/**
 	* Enabled drivers
@@ -30,8 +38,9 @@ function Spider() {
 	* See the ./drivers folder for some examples
 	* @var {array}
 	*/
-	spider.drivers = [
-		require('./drivers/europepmc')(spider), // FIXME: This shouldn't be hard coded
+	spider.drivers = [ // FIXME: These shouldn't be hard coded
+		// require('./drivers/europepmc')(spider),
+		require('./drivers/wos')(spider),
 	];
 
 
