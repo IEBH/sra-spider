@@ -45,8 +45,8 @@ module.exports = function(spider) {
 				ids: epmcid,
 			})
 			.end(function(err, res) {
-				if (err) return next(err);
-				if (_.isEmpty(res.body) || !res.body.records || !res.body.records.length) return next('Invalid response while trying to find PMID ' + cite.id);
+				if (err) return cb(err);
+				if (_.isEmpty(res.body) || !res.body.records || !res.body.records.length) return cb('Invalid response while trying to find PMID ' + cite.id);
 				var doc = res.body.records[0];
 				if (doc && doc.doi) {
 					cb(null, doc.doi);
