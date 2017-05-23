@@ -1,11 +1,30 @@
 var expect = require('chai').expect;
 var mlog = require('mocha-logger');
-var spider = require('..');
+var sraSpider = require('..');
 
-describe('exec()', function() {
+describe('europePMC driver', function() {
 	var config = require('./config');
 
-	spider.set(config);
+	var spider;
+	before(()=> { spider = new sraSpider() })
+	before(()=> spider.set(config) )
+	before(()=> spider.drivers(['europePMC']) )
+
+	it('should be able to translate a DOI into a EPMCID', function(done) {
+		spider._drivers.europePMC.getEPMCIDfromDOI('10.3322/caac.20107', function(err, epmcid) {
+			expect(err).to.be.not.ok;
+			expect(epmcid).to.equal('MED/21296855');
+			done();
+		});
+	});
+
+	it('should be able to translate EPMCIDs into a DOI', function(done) {
+		spider._drivers.europePMC.getDOIfromEPMCID('MED/21296855', function(err, epmcid) {
+			expect(err).to.be.not.ok;
+			expect(epmcid).to.equal('10.3322/caac.20107');
+			done();
+		});
+	});
 
 	it('should fetch all spidered DOIs', function(done) {
 		this.timeout(60 * 1000);

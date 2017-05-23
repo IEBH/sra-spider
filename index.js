@@ -8,12 +8,12 @@ var util = require('util');
 function Spider() {
 	var spider = this;
 
-
 	/**
 	* Default options to use for any function that requires them
 	* @var {Object}
 	*/
 	spider.defaults = {
+		drivers: {}, // List of drivers to use, each key represents a file in ./drivers with the value being a boolean on whether to use it
 		exec: {
 			skipPopulate: false,
 		},
@@ -24,24 +24,47 @@ function Spider() {
 
 	/**
 	* Set various settings
+	* @param {Object} options Incomming options to merge with spider.defaults
+	* @param {*} [options.drivers] If specified this will be automatically passed to spider.drivers()
 	* @return {Object} This chainable object
 	*/
 	spider.set = function(options) {
-		_.merge(spider.defaults, options);
+		if (options.drivers) spider.drivers(options.drivers);
+		_.merge(spider.defaults, _.omit(options, ['drivers']));
 		return spider;
 	};
 
 
 	/**
-	* Enabled drivers
-	* Each of these will be an object
-	* See the ./drivers folder for some examples
-	* @var {array}
+	* Convenience setter to quickly set what drivers to use
+	* @param {Object|array} drivers The drivers to allow as either a Object tree to be set or an array
+	* @return {Object} This chainable object
 	*/
-	spider.drivers = [ // FIXME: These shouldn't be hard coded
-		// require('./drivers/europepmc')(spider),
-		require('./drivers/wos')(spider),
-	];
+	spider.drivers = function(drivers) {
+		if (_.isArray(drivers)) {
+			spider.defaults.drivers = _(spider._drivers)
+				.mapKeys('id')
+				.mapValues((d, id) => drivers.includes(id))
+				.value();
+		} else if (_.isObject(drivers)) {
+			spider.defaults.drivers = drivers;
+		} else {
+			throw new Error('Unknown driver spec type');
+		}
+
+		return spider;
+	};
+
+
+	/**
+	* Known drivers
+	* See the ./drivers folder for some examples
+	* @var {Object}
+	*/
+	spider._drivers = { // FIXME: These shouldn't be hard coded
+		europePMC: require('./drivers/europepmc')(spider),
+		wos: require('./drivers/wos')(spider),
+	};
 
 
 	/**
@@ -123,7 +146,8 @@ function Spider() {
 			// For each DOI, ask each driver for the citations {{{
 			.forEach(_.castArray(doi), function(next, doi) {
 				async()
-					.forEach(spider.drivers, function(nextDriver, driver) {
+					.forEach(spider._drivers, function(nextDriver, driver) {
+						if (!settings.drivers[driver.id]) return next();
 						driver.fetchCites(doi, settings, function(err, doiCites) {
 							if (err) return nextDriver(err);
 							if (!doiCites || !doiCites.size) return nextDriver();
@@ -149,4 +173,4 @@ function Spider() {
 
 util.inherits(Spider, events.EventEmitter);
 
-module.exports = new Spider();
+module.exports = Spider;

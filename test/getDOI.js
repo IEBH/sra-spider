@@ -1,8 +1,11 @@
 var expect = require('chai').expect;
 var mlog = require('mocha-logger');
-var spider = require('..');
+var sraSpider = require('..');
 
 describe('getDOI()', function() {
+
+	var spider;
+	before(()=> { spider = new sraSpider() })
 
 	it('should fetch a DOI', function(done) {
 		spider.getDOI('10.1037/0003-066X.59.1.29', function(err, doc) {
