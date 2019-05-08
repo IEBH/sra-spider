@@ -53,12 +53,47 @@ const ScopusDriver = (config) => {
   });
 
   /**
+   * @param {string} eid
+   * @returns {Promise<Object[]>}
+   */
+  const getForwardCitations = async (eid) => {
+    const pages = await paginate(async ({ page, pageSize }) => {
+
+      const response = await client.get('/search/scopus', {
+        params: {
+          /* This is the undocumented query field that enables fetching of forward citations. */
+          query: `refeid(${eid})`,
+        }
+      });
+  
+      const results = response.data['search-results'];
+  
+      if (results['opensearch:totalResults'] === "0") {
+        return { 
+          total: 0, data: [],
+        };
+      }
+  
+      const { entry: scopusCitations } = results;
+      return {
+        total: results['opensearch:totalResults'],
+        data: scopusCitations,
+      }
+
+    }, {
+      page: 0, pageSize: 1000,
+    })
+
+    return pages.reduce((citations, page) => [...citations, ...page.data.map(parseScopusCitationToSra)], []);
+  }
+
+  /**
    * @param {string} direction
    * @returns {function}
    */
   const getCitationsFactory = (direction) => {
     switch (direction) {
-      case 'forwards': return () => Promise.resolve([]);
+      case 'forwards': return getForwardCitations;
       /* If the direction is not supported,  */
       default: return () => Promise.resolve([]);
     }
