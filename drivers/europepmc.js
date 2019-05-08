@@ -12,7 +12,15 @@ const EuropepmcDriver = () => {
     baseURL: BASE_URL,
   })
 
-  const getConnectedCitations = async () => {
+  /**
+   * @param {Object} citation 
+   * @param {Object} options 
+   * @param {string[]} options.directions
+   * @returns {Promise<Object[]>}
+   */
+  const getConnectedCitations = async (citation, options) => {
+    if (!citation.pmid) return [];
+
     return Promise.resolve([]);
   }
 
