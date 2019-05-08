@@ -2,8 +2,10 @@ SRA-Spider
 ==========
 This module is part of the [Bond University Centre for Research in Evidence-Based Practice](https://github.com/CREBP) Systematic Review Assistant suite of tools.
 
+The SRA-Spider module takes a reference library and attempts to 'spider' for other references - that is, look for citations chaining backwards and forwards.
 
-The SRA-Spider module takes a reference library and attempts to 'spider' for other references - that is, look for citations from and to each reference.
+This module is interacts with multiple databases and depends heavily on native IDs to access the chaining apis. As such, it is recommended that a reference library be foraged [SRA-Forager](https://github.com/CREBP/sra-forager) prior to spidering.
+
 
 The operation is as follows:
 
