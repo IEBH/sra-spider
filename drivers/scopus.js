@@ -2,6 +2,37 @@ const axios = require('axios');
 
 const BASE_URL = 'https://api.elsevier.com/content';
 
+const scopusToSraFields = {
+  'prism:doi': 'doi',
+  'dc:title': 'title',
+  'prism:publicationName': 'journal',
+  eid: 'eid',
+  'pubmed-id': 'pmid',
+  'prism:pageRange': 'pages',
+  'prism:volume': 'volume',
+  'prism:aggregationType': 'type',
+  'prism:coverDate': 'date',
+  'dc:creator': 'authors',
+}
+
+/**
+ * @param {Object} scopusCitation
+ * @returns {Object}
+ */
+const parseScopusCitationToSra = (scopusCitation) => {
+  if (!scopusCitation) return null;  
+
+  const sraCitation = {};
+
+  Object.keys(scopusCitation)
+    .filter(field => scopusToSraFields.hasOwnProperty(field))
+    .forEach(field => {
+      sraCitation[scopusToSraFields[field]] = scopusCitation[field];
+    })
+
+  return sraCitation;
+}
+
 /**
  * @param {Object} config
  * @param {string} config.apiKey
