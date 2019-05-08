@@ -13,6 +13,19 @@ const EuropepmcDriver = () => {
   })
 
   /**
+   * @param {string} direction
+   * @returns {function}
+   */
+  const getCitationsFactory = (direction) => {
+    switch (direction) {
+      case 'backwards': return () => Promise.resolve([]);
+      case 'forwards': return () => Promise.resolve([]);
+      /* If the direction is not supported,  */
+      default: return () => Promise.resolve([]);
+    }
+  }
+
+  /**
    * @param {Object} citation 
    * @param {Object} options 
    * @param {string[]} options.directions
@@ -21,10 +34,17 @@ const EuropepmcDriver = () => {
   const getConnectedCitations = async (citation, options) => {
     if (!citation.pmid) return [];
 
-    return Promise.resolve([]);
+    return (await Promise.all(options.directions.map(async direction => {
+      const connectedCitationsInDirection = await getCitationsFactory(direction)(citation.pmid);
+
+      console.log(`pmid: ${citation.pmid}, Database: ${database}, Direction: ${direction}, Total: ${connectedCitationsInDirection.length}`);
+      
+      return connectedCitationsInDirection;   
+    }))).reduce((a, b) => [...a, ...b], []);
   }
 
   return {
+    database,
     getConnectedCitations,
   }
 }
