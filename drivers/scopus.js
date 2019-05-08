@@ -1,4 +1,5 @@
 const axios = require('axios');
+const paginate = require('../utils/paginate');
 
 const BASE_URL = 'https://api.elsevier.com/content';
 

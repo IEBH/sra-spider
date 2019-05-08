@@ -4,7 +4,7 @@
   "description": "CREBP-SRA tool to spider academic citations",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha --timeout 20000 './tests/**/*.test.js'"
   },
   "repository": {
     "type": "git",
