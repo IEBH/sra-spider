@@ -38,7 +38,12 @@ const spiderCitations = async (citations, options) => {
   console.log(`Started spidering ${citations.length} citations`);
 
   const chainedCitations = (await Promise.all(citations.map(async (citation, index) => {
-    /* Simple throttle to delay execution a 1 second multipled by the current index. */
+    /* 
+    * Delays execution for each citation by its index multiplied by a constant number of ms. This allows spidering per citation 
+    * to occur asynchronously but with a sequential offset. 
+    * 
+    * This is kinder to the databases and avoids rate limiting issues.
+    * */
     await new Promise((resolve) => {
       setTimeout(resolve, index * 1000);
     })
