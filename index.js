@@ -6,6 +6,8 @@ const driversByDatabase = {
   scopus: ScopusDriver,
 }
 
+const supportedDirections = ['backwards', 'forwards'];
+
 /**
  * @param {Object[]} citations
  * @param {Options} options 
@@ -15,6 +17,22 @@ const driversByDatabase = {
  * @returns {Object[]}
  */
 const spiderCitations = async (citations, options) => {
+  if (!options.directions || options.directions.length === 0) {
+    throw new Error('At least one direction must be specified.');
+  }
+  
+  if (!options.directions.every(direction => supportedDirections.includes(direction))) {
+    throw new Error('Please provide a valid direction.');
+  }
+
+  if (!options.drivers || options.drivers.length === 0) {
+    throw new Error('At least driver must be specified.');
+  } 
+
+  if (!options.drivers.every(driver => Object.keys(driversByDatabase).includes(driver.database))) {
+    throw new Error('Please provide a valid driver.');
+  }
+
   const selectedDrivers = options.drivers.map(driver => driversByDatabase[driver.database](driver.config));
   
   console.log(`Started spidering ${citations.length} citations`);
