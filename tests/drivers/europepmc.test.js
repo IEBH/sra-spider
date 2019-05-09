@@ -3,17 +3,17 @@ const EuropepmcDriver = require('../../drivers/europepmc');
 
 const { expect } = chai;
 
-describe('getConnectedCitations', () => {
+describe('europepmc - spiderCitation', () => {
   const europepmcDriver = EuropepmcDriver();
 
   it('should return an empty array if the citation does not have a pmid field.', async () => {
     const citation = { title: 'Example' };
 
     try {
-      const citations = await europepmcDriver.getConnectedCitations(citation, {
+      const chainedCitations = await europepmcDriver.spiderCitation(citation, {
         directions: ['backwards', 'forwards'],
       })
-      expect(citations.length).to.equal(0);
+      expect(chainedCitations.length).to.equal(0);
     } catch (error) {
       expect(error).to.be.not.ok;
     }
@@ -23,10 +23,10 @@ describe('getConnectedCitations', () => {
     const citation = { pmid: '19826172' };
 
     try {
-      const citations = await europepmcDriver.getConnectedCitations(citation, {
+      const backwardChainedCitation = await europepmcDriver.spiderCitation(citation, {
         directions: ['backwards'],
       });
-      expect(citations.length).to.be.at.least(56);
+      expect(backwardChainedCitation.length).to.be.at.least(56);
     } catch (error) {
       expect(error).to.be.not.ok;
     }  
@@ -36,34 +36,32 @@ describe('getConnectedCitations', () => {
     const citation = { pmid: '19826172' };
 
     try {
-      const citations = await europepmcDriver.getConnectedCitations(citation, {
+      const forwardChainedCitation = await europepmcDriver.spiderCitation(citation, {
         directions: ['forwards'],
       });
-      expect(citations.length).to.be.at.least(134);
+      expect(forwardChainedCitation.length).to.be.at.least(134);
     } catch (error) {
       expect(error).to.be.not.ok;
     }
   })
 
-  it('should return a list of connected citations using multiple directions matching of the sum of the individual directions.', async () => {
+  it('should return a list resulting from a multi direction call that is equivalent multiple single direction calls.', async () => {
     const citation = { pmid: '19826172' };
 
-    let numberOfConnectedCitations = 0;
-
     try {
-      numberOfConnectedCitations += (await europepmcDriver.getConnectedCitations(citation, {
+      const backwardChainedCitations = await europepmcDriver.spiderCitation(citation, {
         directions: ['backwards'],
-      })).length;
+      })
   
-      numberOfConnectedCitations += (await europepmcDriver.getConnectedCitations(citation, {
+      const forwardChainedCitations = await europepmcDriver.spiderCitation(citation, {
         directions: ['forwards'],
-      })).length;
+      })
   
-      const citations = await europepmcDriver.getConnectedCitations(citation, {
+      const chainedCitations = await europepmcDriver.spiderCitation(citation, {
         directions: ['backwards', 'forwards'],
       });
 
-      expect(citations.length).to.equal(numberOfConnectedCitations);
+      expect(chainedCitations.length).to.equal(backwardChainedCitations.length + forwardChainedCitations.length);
     } catch (error) {
       expect(error).to.be.not.ok;
     }

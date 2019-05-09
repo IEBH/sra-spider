@@ -6,17 +6,17 @@ const config = require('../config');
 
 const { expect } = chai;
 
-describe('getConnectedCitations', () => {
+describe('scopus - spiderCitation', () => {
   const scopusDriver = ScopusDriver(config.drivers.scopus);
 
   it('should return an empty array if the citation does not have an eid field.', async () => {
     const citation = { title: 'Example' };
 
     try {
-      const citations = await scopusDriver.getConnectedCitations(citation, {
+      const forwardChainedCitations = await scopusDriver.spiderCitation(citation, {
         directions: ['forwards'],
       })
-      expect(citations.length).to.equal(0);
+      expect(forwardChainedCitations.length).to.equal(0);
     } catch (error) {
       expect(error).to.be.not.ok;
     }
@@ -26,10 +26,10 @@ describe('getConnectedCitations', () => {
     const citation = { eid: '2-s2.0-70349611684' };
 
     try {
-      const citations = await scopusDriver.getConnectedCitations(citation, {
+      const backwardChainedCitations = await scopusDriver.spiderCitation(citation, {
         directions: ['backwards'],
       });
-      expect(citations.length).to.equal(0);
+      expect(backwardChainedCitations.length).to.equal(0);
     } catch (error) {
       expect(error).to.be.not.ok;
     }  
@@ -40,10 +40,10 @@ describe('getConnectedCitations', () => {
 
     try {
       /* This citation has 50 forward references according to scopus. */
-      const citations = await scopusDriver.getConnectedCitations(citation, {
+      const forwardChainedCitations = await scopusDriver.spiderCitation(citation, {
         directions: ['forwards'],
       });
-      expect(citations.length).to.equal(50);
+      expect(forwardChainedCitations.length).to.equal(50);
     } catch (error) {
       expect(error).to.be.not.ok;
     }

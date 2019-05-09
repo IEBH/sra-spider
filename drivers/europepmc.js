@@ -132,21 +132,21 @@ const EuropepmcDriver = () => {
    * @param {string[]} options.directions
    * @returns {Promise<Object[]>}
    */
-  const getConnectedCitations = async (citation, options) => {
+  const spiderCitation = async (citation, options) => {
     if (!citation.pmid) return [];
 
     return (await Promise.all(options.directions.map(async direction => {
-      const connectedCitationsInDirection = await getCitationsFactory(direction)(citation.pmid);
+      const chainedCitationsInDirection = await getCitationsFactory(direction)(citation.pmid);
 
-      console.log(`pmid: ${citation.pmid}, Database: ${database}, Direction: ${direction}, Total: ${connectedCitationsInDirection.length}`);
+      console.log(`pmid: ${citation.pmid}, Database: ${database}, Direction: ${direction}, Total: ${chainedCitationsInDirection.length}`);
       
-      return connectedCitationsInDirection;   
+      return chainedCitationsInDirection;   
     }))).reduce((a, b) => [...a, ...b], []);
   }
 
   return {
     database,
-    getConnectedCitations,
+    spiderCitation,
   }
 }
 

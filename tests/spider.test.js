@@ -4,40 +4,39 @@ const config = require('./config');
 
 const { expect } = chai;
 
-describe('getConnectedCitations', () => {
-  it('should return a list of connected citations using multiple drivers matching of the sum of their individual calls.', async () => {
+describe('spider - spiderCitations', () => {
+  it('should return a list resulting from a multi driver call that is equivalent multiple single driver calls.', async () => {
     const citations = [{ 
       pmid: '19826172',
       eid: '2-s2.0-70349611684',
     }];
 
-    let numberOfConnectedCitations = 0;
-
     try {
-      numberOfConnectedCitations += (await spider.getConnectedCitations(citations, {
+      const europepmcChainedCitations = await spider.spiderCitations(citations, {
         drivers: [
           { database: 'europepmc' },
         ],
         directions: ['backwards', 'forwards'],
-      })).length;
+      })
   
-      numberOfConnectedCitations += (await spider.getConnectedCitations(citations, {
+      const scopusChainedCitations = await spider.spiderCitations(citations, {
         drivers: [
-          { database: 'scopus', config: config.drivers.scopus },
-        ],
-        directions: ['backwards', 'forwards'],
-      })).length;
-
-      const connectedCitations = await spider.getConnectedCitations(citations, {
-        drivers: [
-          { database: 'europepmc' },
           { database: 'scopus', config: config.drivers.scopus },
         ],
         directions: ['backwards', 'forwards'],
       })
+  
+      const chainedCitations = await spider.spiderCitations(citations, {
+        drivers: [
+          { database: 'europepmc' },
+          { database: 'scopus', config: config.drivers.scopus },
+        ],
+        directions: ['backwards', 'forwards'],
+      });
 
-      expect(connectedCitations.length).to.equal(numberOfConnectedCitations);
+      expect(chainedCitations.length).to.equal(europepmcChainedCitations.length + scopusChainedCitations.length);
     } catch (error) {
+      console.log(error);
       expect(error).to.be.not.ok;
     }
   })

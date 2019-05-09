@@ -14,17 +14,17 @@ const driversByDatabase = {
  * @param {Object} options.drivers.config
  * @returns {Object[]}
  */
-const getConnectedCitations = async (citations, options) => {
+const spiderCitations = async (citations, options) => {
   const selectedDrivers = options.drivers.map(driver => driversByDatabase[driver.database](driver.config));
   
   console.log(`Started spidering ${citations.length} citations`);
 
-  const connectedCitations = (await Promise.all(citations.map(async (citation, index) => {
-    const connectedCitationsByDriver = {};
+  const chainedCitations = (await Promise.all(citations.map(async (citation, index) => {
+    const chainedCitationsByDriver = {};
   
     await Promise.all(selectedDrivers.map(async driver => {
       try {
-        connectedCitationsByDriver[driver.database] = await driver.getConnectedCitations(citation, {
+        chainedCitationsByDriver[driver.database] = await driver.spiderCitation(citation, {
           directions: options.directions,
         });
       } catch (error) {
@@ -32,16 +32,16 @@ const getConnectedCitations = async (citations, options) => {
       }
     }));
 
-    return Object.values(connectedCitationsByDriver).reduce((a, b) => [...a, ...b], []);
+    return Object.values(chainedCitationsByDriver).reduce((a, b) => [...a, ...b], []);
   }))).reduce((a, b) => [...a, ...b], []);
 
   console.log(`Finished spidering`);
 
-  return connectedCitations;
+  return chainedCitations;
 }
 
 const spider = {
-  getConnectedCitations,
+  spiderCitations,
 }
 
 module.exports = spider;
