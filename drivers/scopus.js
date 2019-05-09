@@ -107,12 +107,15 @@ const ScopusDriver = (config) => {
    * @returns {Promise<Object[]>}
    */
   const spiderCitation = async (citation, options) => {
-    if (!citation.eid) return [];
+    if (!citation.eid) {
+      console.log(`Database: ${database}, didn't forage due to missing eid.`);
+      return [];
+    }
 
     return (await Promise.all(options.directions.map(async direction => {
       const chainedCitationsInDirection = await getCitationsFactory(direction)(citation.eid);
 
-      console.log(`eid: ${citation.eid}, Database: ${database}, Direction: ${direction}, Total: ${chainedCitationsInDirection.length}`);
+      console.log(`Database: ${database}, eid: ${citation.eid}, Direction: ${direction}, Total: ${chainedCitationsInDirection.length}`);
       
       return chainedCitationsInDirection;   
     }))).reduce((a, b) => [...a, ...b], []);

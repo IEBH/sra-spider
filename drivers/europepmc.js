@@ -24,7 +24,7 @@ const europepmcToSraFields = {
  * @returns {Object}
  */
 const parseEuropepmcCitationToSra = (europepmcCitation) => {
-  if (!europepmcCitation) return null;  
+  if (!europepmcCitation) return null;
 
   const sraCitation = {};
 
@@ -62,11 +62,11 @@ const EuropepmcDriver = () => {
 
       const { hitCount } = response.data;
       if (hitCount === 0) {
-        return { 
+        return {
           total: 0, data: [],
-        };      
+        };
       }
-  
+
       const { reference: europepmcCitations } = response.data.referenceList;
       return {
         total: hitCount,
@@ -74,8 +74,8 @@ const EuropepmcDriver = () => {
       };
 
     }, {
-      page: 1, pageSize: 1000,
-    });
+        page: 1, pageSize: 1000,
+      });
 
     return pages.reduce((citations, page) => [...citations, ...page.data.map(parseEuropepmcCitationToSra)], []);
   }
@@ -95,11 +95,11 @@ const EuropepmcDriver = () => {
 
       const { hitCount } = response.data;
       if (hitCount === 0) {
-        return { 
+        return {
           total: 0, data: [],
-        };       
+        };
       }
-  
+
       const { citation: europepmcCitations } = response.data.citationList;
       return {
         total: hitCount,
@@ -107,8 +107,8 @@ const EuropepmcDriver = () => {
       };
 
     }, {
-      page: 1, pageSize: 1000,
-    });
+        page: 1, pageSize: 1000,
+      });
 
     return pages.reduce((citations, page) => [...citations, ...page.data.map(parseEuropepmcCitationToSra)], []);
   }
@@ -133,14 +133,16 @@ const EuropepmcDriver = () => {
    * @returns {Promise<Object[]>}
    */
   const spiderCitation = async (citation, options) => {
-    if (!citation.pmid) return [];
-
+    if (!citation.pmid) {
+      console.log(`Database: ${database}, didn't forage due to missing pmid.`);
+      return [];
+    }
     return (await Promise.all(options.directions.map(async direction => {
       const chainedCitationsInDirection = await getCitationsFactory(direction)(citation.pmid);
 
-      console.log(`pmid: ${citation.pmid}, Database: ${database}, Direction: ${direction}, Total: ${chainedCitationsInDirection.length}`);
-      
-      return chainedCitationsInDirection;   
+      console.log(`Database: ${database}, pmid: ${citation.pmid}, Direction: ${direction}, Total: ${chainedCitationsInDirection.length}`);
+
+      return chainedCitationsInDirection;
     }))).reduce((a, b) => [...a, ...b], []);
   }
 
