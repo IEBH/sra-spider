@@ -20,6 +20,11 @@ const spiderCitations = async (citations, options) => {
   console.log(`Started spidering ${citations.length} citations`);
 
   const chainedCitations = (await Promise.all(citations.map(async (citation, index) => {
+    /* Simple throttle to delay execution a 1 second multipled by the current index. */
+    await new Promise((resolve) => {
+      setTimeout(resolve, index * 1000);
+    })
+
     const chainedCitationsByDriver = {};
   
     await Promise.all(selectedDrivers.map(async driver => {
