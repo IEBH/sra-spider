@@ -1,6 +1,10 @@
 const axios = require('axios');
 const paginate = require('../utils/paginate');
 
+/**
+ * Scopus api documentation can found at https://dev.elsevier.com/documentation/ScopusSearchAPI.wadl
+ */
+
 const BASE_URL = 'https://api.elsevier.com/content';
 
 const scopusToSraFields = {
@@ -54,6 +58,7 @@ const ScopusDriver = (config) => {
   });
 
   /**
+   * https://dev.elsevier.com/documentation/ScopusSearchAPI.wadl
    * @param {string} eid
    * @returns {Promise<Object[]>}
    */

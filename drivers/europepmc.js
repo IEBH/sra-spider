@@ -1,6 +1,10 @@
 const axios = require('axios');
 const paginate = require('../utils/paginate');
 
+/**
+ * Europepmc api documentation can be found at https://europepmc.org/RestfulWebService
+ */
+
 const BASE_URL = 'https://www.ebi.ac.uk/europepmc/webservices/rest';
 
 const europepmcToSraFields = {
@@ -48,6 +52,7 @@ const EuropepmcDriver = () => {
   })
 
   /**
+   * https://europepmc.org/RestfulWebService#!/Europe32PMC32Articles32RESTful32API/references
    * @param {string} pmid
    * @returns {Promise<Object[]>}
    */
@@ -81,6 +86,7 @@ const EuropepmcDriver = () => {
   }
 
   /**
+   * https://europepmc.org/RestfulWebService#!/Europe32PMC32Articles32RESTful32API/citations
    * @param {string} pmid
    * @returns {Promise<Object[]>}
    */

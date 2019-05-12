@@ -1,14 +1,75 @@
-SRA-Spider
-==========
+### SRA SPIDER
+
 This module is part of the [Bond University Centre for Research in Evidence-Based Practice](https://github.com/CREBP) Systematic Review Assistant suite of tools.
 
-The SRA-Spider module takes a reference library and attempts to 'spider' for other references - that is, look for citations chaining backwards and forwards.
+The purpose of spider is to find backward and forward citations for a given citation.
 
-This module is interacts with multiple databases and depends heavily on native IDs to access the chaining apis. As such, it is recommended that a reference library be foraged [SRA-Forager](https://github.com/CREBP/sra-forager) prior to spidering.
+## Supported sources
+
+Sources can be found in the ```./drivers``` directory.
+
+* **Europepmc**
+* **Scopus**
+
+## Spider API
+
+### spider.spiderCitations
+
+spider.spiderCitations(citations, options)
+
+Takes a list of citations and returns a promise with a merged list of backwards and forwards citations across all citations.
+
+Options: 
+* **directions** - A list of the directions to use (backwards or forwards).
+* **drivers** - A list of the drivers to use.
+
+Example:
+```sh
+  const spider = require('sra-spider');
+
+  const citations = [
+    { doi: '10.1016/S0092-8674(00)81683-9' },
+  ];
+
+  const options = {
+    directions: ['backwards', 'forwards'],
+    drivers: [
+      { database: 'europepmc' },
+      {
+        database: 'scopus',
+        config: {
+          apiKey: '',
+        }
+      }
+    ]
+  };
+
+  const spideredCitations = await spider.spiderCitations(citations, options);
+```
+
+## Driver API
+
+Drivers are orchestrated by the forager. Each driver implements the same interface.
+
+### driver.spiderCitation
+
+driver.spiderCitation(citation, options);
+
+Takes a single citation and returns a promise with a merged list of backwards and forwards citations.
+
+Options: 
+* **directions** - A list of the directions to use (backwards or forwards).
 
 
-The operation is as follows:
+Example:
+```sh
+  const spider = require('sra-spider');
 
-1. Accept a reference library of multiple references as well as a configuration specifying directions and databases.
-2. For each reference in the reference library, attempt to retrieve chained citations from each specified database for the specified directions.
-3. References libraries for each direction, driver and reference are flattened into a single list and returned.
+  const citation = { doi: '10.1016/S0092-8674(00)81683-9' };
+
+  const options = {
+    directions: ['backwards', 'forwards'],
+  };
+
+  const spideredCitations = await driver.spiderCitation(citation, options);
+```
